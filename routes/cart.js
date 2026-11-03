@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const Cart = require('../models/carts');
+const Trip = require('../models/trips');
 const { isValidMongoId } = require('../modules/isValid');
 
 
@@ -29,13 +30,18 @@ router.post('/', async (req, res) => {
   //console.log( req.body.tripId );
 
   if ( isValidMongoId( req.body.tripId ) ) {
-    const tripJson = { trip: req.body.tripId };
-    existTrip = await Cart.find( tripJson );
-    //console.log( existTrip );
-    if ( existTrip.length === 0 ) {
-      const newCart = new Cart( tripJson );
-      await newCart.save();
-      isAdded = true;
+    const existTrip = await Trip.findById( req.body.tripId ); // Check if record is into trips
+    // Add the trip to carts
+    if ( existTrip ) {
+      const tripJson = { trip: req.body.tripId };
+      //Check if trip is already into carts
+      existCart = await Cart.find( tripJson );
+      //console.log( existCart );
+      if ( existCart.length === 0 ) {
+        const newCart = new Cart( tripJson );
+        await newCart.save();
+        isAdded = true;
+      }
     }
   }
 

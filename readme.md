@@ -11,5 +11,5 @@ GET  /cart    : demande -
 POST /cart    : demande 1 body "tripId"
 DEL  /cart    : demande 1 body "cartId"
 GET  /booking : demande -
-POST /booking : demande 1 body "tripId"
+POST /booking : demande 1 body "cartId"
 DEL  /booking : demande 1 body "bookingId"

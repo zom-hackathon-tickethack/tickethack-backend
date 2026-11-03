@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const Booking = require('../models/bookings');
+const Cart    = require('../models/carts');
 const { isValidMongoId } = require('../modules/isValid');
 
 
@@ -26,15 +27,23 @@ router.get('/', async function(req, res, next) {
 
 router.post('/', async (req, res) => {
   let isAdded = false;
-  //console.log( req.body.tripId )
+  //console.log( req.body.cartId )
 
-  if ( isValidMongoId( req.body.tripId ) ) {
-    const tripJson = { trip: req.body.tripId };
-    existTrip = await Booking.find( tripJson );
-    if ( existTrip.length === 0 ) {
-      const newBooking = new Booking( tripJson );
-      await newBooking.save();
-      isAdded = true;
+  if ( isValidMongoId( req.body.cartId ) ) {
+    // Check if record is into carts
+    const existCart = await Cart.findById( req.body.cartId );
+    if ( existCart ) {
+      // Move the trip from carts to bookings
+      const tripJson = { trip: existCart.trip };
+      existBooking = await Booking.find( tripJson );
+      if ( existBooking.length === 0 ) {
+        const newBooking = new Booking( tripJson );
+        await newBooking.save();                                        // Add to bookings
+        const del = await Cart.deleteOne( { _id: req.body.cartId } );   // Remove from carts
+        //console.log( del );
+        isAdded = true;
+      }
+
     }
   }
 
