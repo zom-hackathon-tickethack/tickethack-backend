@@ -1,0 +1,47 @@
+const mongoose = require('mongoose');
+
+
+function isValidDate( value ) {
+    if (typeof value !== 'string') return false;
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return false;
+    }
+
+    const date = new Date(value + "T00:00:00.000Z");
+
+    return !isNaN(date.getTime()) &&
+        date.toISOString().slice(0, 10) === value;
+}
+
+
+function isValidCity( value ) {
+    if (typeof value !== 'string') return false;
+
+    const city = value.trim();
+
+    if (city.length < 2 || city.length > 100) {
+        return false;
+    }
+
+    // Lettres, accents, espaces, apostrophes et tirets
+    const regex = /^[\p{L}\s'-]+$/u;
+
+    return regex.test(city);
+}
+
+
+function isValidMongoId(id) {
+    return mongoose.Types.ObjectId.isValid(id);
+}
+
+
+
+function makeExistString( value ) {
+    if (typeof value !== 'string') return '';
+
+    return value.trim();
+}
+
+
+module.exports = { isValidDate, isValidCity, makeExistString, isValidMongoId };

@@ -2,10 +2,11 @@ var express = require('express');
 var router = express.Router();
 
 const Cart = require('../models/carts');
+const { isValidMongoId } = require('../modules/isValid');
 
 
 async function getFullCart() {
-  return Cart.find().select('-__v').populate('cart').lean();
+  return Cart.find().select('-__v').populate( 'trip' ).lean();
 }
 
 
@@ -25,21 +26,21 @@ router.get('/', async function(req, res, next) {
 
 router.post('/', async (req, res) => {
   let isAdded = false;
-  console.log( req.body.tripId );
+  //console.log( req.body.tripId );
 
-  if ( req.body.tripId ) {
-    const cartJson = { cart: req.body.tripId };
-    existTrip = await Cart.find( cartJson );
-    console.log( existTrip );
+  if ( isValidMongoId( req.body.tripId ) ) {
+    const tripJson = { trip: req.body.tripId };
+    existTrip = await Cart.find( tripJson );
+    //console.log( existTrip );
     if ( existTrip.length === 0 ) {
-      const newCart = new Cart( cartJson );
+      const newCart = new Cart( tripJson );
       await newCart.save();
       isAdded = true;
     }
   }
 
   const fullCart = await getFullCart();
-  console.log( fullCart );
+  //console.log( fullCart );
   res.json( { "result": isAdded, fullCart } );
 });
 
@@ -49,7 +50,7 @@ router.delete('/', async (req, res) => {
   let isDeleted = false;
   //console.log( req.body.cartId )
 
-  if ( req.body.cartId ) {
+  if ( isValidMongoId( req.body.cartId ) ) {
     const delStatus = await Cart.deleteOne( { _id: req.body.cartId } );
     isDeleted = ( delStatus.deletedCount > 0 );
   }

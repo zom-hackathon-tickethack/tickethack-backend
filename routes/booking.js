@@ -2,10 +2,11 @@ var express = require('express');
 var router = express.Router();
 
 const Booking = require('../models/bookings');
+const { isValidMongoId } = require('../modules/isValid');
 
 
 async function getFullBooking() {
-  return Booking.find().select('-__v').populate( { path: 'booking', populate: { path: 'cart' } } ).lean();
+  return Booking.find().select('-__v').populate( 'trip'/*{ path: 'booking', populate: { path: 'cart' } }*/ ).lean();
 }
 
 
@@ -25,13 +26,13 @@ router.get('/', async function(req, res, next) {
 
 router.post('/', async (req, res) => {
   let isAdded = false;
-  //console.log( req.body.cartId )
+  //console.log( req.body.tripId )
 
-  if ( req.body.cartId ) {
-    const bookingJson = { booking: req.body.cartId };
-    existCart = await Booking.find( bookingJson );
-    if ( existCart.length === 0 ) {
-      const newBooking = new Booking( bookingJson );
+  if ( isValidMongoId( req.body.tripId ) ) {
+    const tripJson = { trip: req.body.tripId };
+    existTrip = await Booking.find( tripJson );
+    if ( existTrip.length === 0 ) {
+      const newBooking = new Booking( tripJson );
       await newBooking.save();
       isAdded = true;
     }
@@ -47,7 +48,7 @@ router.delete('/', async (req, res) => {
   let isDeleted = false;
   //console.log( req.body.bookingId )
 
-  if ( req.body.bookingId ) {
+  if ( isValidMongoId( req.body.bookingId ) ) {
     const delStatus = await Booking.deleteOne( { _id: req.body.bookingId } );
     isDeleted = ( delStatus.deletedCount > 0 );
   }
