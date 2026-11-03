@@ -14,6 +14,8 @@ const connMongoDB = require('./models/connection');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var travelRouter = require('./routes/travel');
+var bookingRouter = require('./routes/booking');
+var cartRouter = require('./routes/cart');
 
 var app = express();
 app.connMongoDB = connMongoDB; //permet d'exporter la promise de co comme une propriété de l'app
@@ -30,6 +32,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/travel', /*checkApiKey,*/ travelRouter);
+app.use('/booking', /*checkApiKey,*/ bookingRouter);
+app.use('/cart', /*checkApiKey,*/ cartRouter);
 
 
 // temp test

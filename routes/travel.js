@@ -5,7 +5,7 @@ const moment = require('moment-timezone');
 
 const Trip = require('../models/trips');
 
-/* GET users listing. */
+/* GET all travels for a set of departure/arrival/day */
 router.get('/', async function(req, res, next) {
   let isOk = false;
   //console.log( req.query.departure, req.query.arrival, req.query.date )
@@ -20,10 +20,10 @@ router.get('/', async function(req, res, next) {
       departure: new RegExp(`^${departure}$`, 'i'),
       arrival: new RegExp(`^${arrival}$`, 'i'),
       date: {
-        $gt: moment.max( moment(), date.clone().startOf('day') ),
+        $gt: moment.max( moment(), date.clone().startOf('day') ),   // Do not report date previous to current time, so do not report any travel for a past day
         $lt: date.clone().add(1, 'day').startOf('day').toDate() }
     } ).select('-__v').lean();
-  console.log( travels )
+    //console.log( travels )
 
     if ( travels ) {
       res.json({ "result": true, travels });
