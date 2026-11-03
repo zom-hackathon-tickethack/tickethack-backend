@@ -12,7 +12,7 @@ var logger = require('morgan');
 const connMongoDB = require('./models/connection');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+//var usersRouter = require('./routes/users');
 var travelRouter = require('./routes/travel');
 var bookingRouter = require('./routes/booking');
 var cartRouter = require('./routes/cart');
@@ -30,14 +30,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//app.use('/users', usersRouter);
 app.use('/travel', /*checkApiKey,*/ travelRouter);
 app.use('/booking', /*checkApiKey,*/ bookingRouter);
 app.use('/cart', /*checkApiKey,*/ cartRouter);
 
 
 // temp test
-const Trip = require('./models/trips');
-Trip.find( {departure: "Paris", arrival: "Marseille"}).then( e => console.log(e) )
+// const Trip = require('./models/trips');
+// Trip.find( {departure: "Paris", arrival: "Marseille"}).then( e => console.log(e) )
 
 module.exports = app;
