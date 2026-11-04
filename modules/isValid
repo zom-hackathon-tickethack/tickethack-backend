@@ -31,8 +31,14 @@ function isValidCity( value ) {
 }
 
 
-function isValidMongoId(id) {
-    return mongoose.Types.ObjectId.isValid(id);
+function isValidMongoId( id ) {
+    return mongoose.Types.ObjectId.isValid( id );
+}
+
+
+function isValidMongoIdList( idList ) {
+    return Array.isArray( idList )
+           && idList.every( id => mongoose.Types.ObjectId.isValid( id ) );
 }
 
 
@@ -44,4 +50,4 @@ function makeExistString( value ) {
 }
 
 
-module.exports = { isValidDate, isValidCity, makeExistString, isValidMongoId };
+module.exports = { isValidDate, isValidCity, makeExistString, isValidMongoId, isValidMongoIdList };

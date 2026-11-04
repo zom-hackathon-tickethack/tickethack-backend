@@ -3,7 +3,7 @@ var router = express.Router();
 
 const Booking = require('../models/bookings');
 const Cart    = require('../models/carts');
-const { isValidMongoId } = require('../modules/isValid');
+const { isValidMongoId, isValidMongoIdList } = require('../modules/isValid');
 
 
 async function getFullBooking() {
@@ -27,23 +27,28 @@ router.get('/', async function(req, res, next) {
 
 router.post('/', async (req, res) => {
   let isAdded = false;
-  //console.log( req.body.cartId )
+  //console.log( req.body.cartIdList )
 
-  if ( isValidMongoId( req.body.cartId ) ) {
-    // Check if record is into carts
-    const existCart = await Cart.findById( req.body.cartId );
-    if ( existCart ) {
-      // Move the trip from carts to bookings
-      const tripJson = { trip: existCart.trip };
-      existBooking = await Booking.find( tripJson );
-      if ( existBooking.length === 0 ) {
-        const newBooking = new Booking( tripJson );
-        await newBooking.save();                                        // Add to bookings
-        const del = await Cart.deleteOne( { _id: req.body.cartId } );   // Remove from carts
+  if ( isValidMongoIdList( req.body.cartIdList ) ) {
+    // Check if records are into carts
+    const listLength = req.body.cartIdList.length;
+    const carts = await Cart.find( { _id: { $in: req.body.cartIdList } } );
+
+    if ( carts.length === listLength ) {
+      const tripList = carts.map( cart => cart.trip );
+      //console.log( tripList );
+      const existBooking = await Booking.findOne( { trip: { $in: tripList } } );
+      //console.log( existBooking );
+
+      if ( ( ! existBooking ) && ( tripList.length > 0 )) {
+        for( let trip of tripList ) {
+          const newBooking = new Booking( { trip } );
+          await newBooking.save();                    // Add one to bookings
+        }
+        const del = await Cart.deleteMany( { _id: { $in: req.body.cartIdList } } ); // Remove all from carts
         //console.log( del );
         isAdded = true;
       }
-
     }
   }
 
