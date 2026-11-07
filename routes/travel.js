@@ -21,7 +21,7 @@ router.get('/', async function(req, res, next) {
       departure: new RegExp(`^${departure}$`, 'i'),
       arrival: new RegExp(`^${arrival}$`, 'i'),
       date: {
-        $gt: moment.max( moment(), dateTz.clone().startOf('day') ),   // Do not report date previous to current time, so do not report any travel for a past day
+        $gte: moment.max( moment(), dateTz.clone().startOf('day') ),   // Do not report date previous to current time, so do not report any travel for a past day
         $lt: dateTz.clone().add(1, 'day').startOf('day').toDate() }
     } ).select('-__v').lean();
     //console.log( travels )
